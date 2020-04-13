@@ -1,33 +1,40 @@
 {
   "meta": {
     "build": {
-      "build-date": "2020-03-30",
-      "ci-build-number": "1.0.16",
+      "build-date": "2020-04-13",
+      "ci-build-number": "1.0.19",
       "ci-project": "DCCouncil-law-xml",
-      "codified-date": "2020-03-17",
+      "codified-date": "2020-04-15",
       "platform": {
         "reproducible": "true",
         "version": "2020.2.0"
       },
       "repositories": [
         {
-          "commit": "4505ed35fbb4cd4a20542761bfa7b044c9aa0f7f",
+          "commit": "07b4ede1fbc2c423172c96a72e4d7c380c389efc",
           "name": "DCCouncil/law-xml"
         },
         {
-          "commit": "7543f76b2badbdbc3df0e0336bf648236625730d",
+          "commit": "cea82db290de84d95525af18aa010e97092f9229",
           "name": "DCCouncil/law-xml-codified-preview"
         }
       ]
     },
     "canonical-urls": {
       "html": "https://code.dccouncil.us",
-      "html-bulk": "https://github.com/dccouncil/dc-law-html",
-      "xml-bulk": "https://github.com/dccouncil/dc-law-xml"
+      "html-bulk": "https://github.com/oll-test-repos/DCCouncil-law-html",
+      "static-assets": "https://github.com/oll-test-repos/DCCouncil-law-static-assets",
+      "xml-bulk": "https://github.com/oll-test-repos/DCCouncil-law-xml"
     },
     "contact": {
       "email": "code@dccouncil.us"
     },
-    "description": "Browse the laws and code of the District of Columbia"
+    "description": "Browse the laws and code of the District of Columbia",
+    "redirects": [
+      {
+        "in": "/dc/council",
+        "out": "/us/dc/council"
+      }
+    ]
   }
 }
