@@ -47,6 +47,8 @@ STATIC_ASSETS_DIR = os.path.join(DIR, 'static-assets')
 if not os.path.exists(STATIC_ASSETS_DIR):
     os.mkdir(STATIC_ASSETS_DIR)
 
+LAW_DOCS_PATH = os.path.join(os.path.dirname(DIR), 'law-docs')
+
 
 PORTAL_CLIENT_CLASS = None
 PORTAL_HOST = None
@@ -72,8 +74,8 @@ filetypes = {
     'woff2',
 }
 
-AUTH_PATH_PREFIX = '/_api/authenticate'
-HISTORICAL_VERSIONS_PATH_PREFIXES = ('/_publication', '/_date', '/_compare')
+AUTH_PATH_PREFIXES = ('/_api/authenticate', '/_api/check-hashes', )
+HISTORICAL_VERSIONS_PATH_PREFIXES = ('/_publication', '/_date', '/_compare', )
 PORTAL_PATH_PREFIXES = ('/_portal', '/_api') + HISTORICAL_VERSIONS_PATH_PREFIXES
 
 
@@ -199,7 +201,7 @@ class RequestHandler(SimpleHTTPRequestHandler):
             super().do_GET()
 
     def do_POST(self):
-        if self.path == AUTH_PATH_PREFIX:
+        if self.path in AUTH_PATH_PREFIXES:
             content_len = int(self.headers.get('Content-Length'))
             body = self.rfile.read(content_len)
             return self._proxy(PORTAL_CLIENT_CLASS, PORTAL_HOST, 'portal', method='POST', body=body)
@@ -235,7 +237,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
             return ''
         path_ext = path.rsplit('.', 1)
         html_path = path + '.html'
-        if len(path_ext) > 1 and path_ext[1] in filetypes:
+
+        if path.endswith('.pdf'):
+            return os.path.join(self.server.law_docs_path, os.path.relpath(path, DIR))
+        elif len(path_ext) > 1 and path_ext[1] in filetypes:
             if os.path.isfile(path):
                 return path
             else:
@@ -245,6 +250,10 @@ class RequestHandler(SimpleHTTPRequestHandler):
         elif os.path.isdir(path):
             index_page = os.path.join(path, 'index.html')
             return index_page
+
+    def end_headers(self):
+        self.send_header('Access-Control-Allow-Origin', '*')
+        SimpleHTTPRequestHandler.end_headers(self)
 
 
 def get_http_client_info(upstream_name, url):
@@ -277,6 +286,8 @@ if __name__ == '__main__':
                         help='url to proxy portal requests to. [default: None]')
     parser.add_argument('--no-open-browser', default=False, action="store_true",
                         help='do not open the library in default browser after starting server.')
+    parser.add_argument('--law-docs-path', default=LAW_DOCS_PATH,
+                        help='a path to the law-docs directory.')
     parser.add_argument('--static-assets-repo-url', default=STATIC_ASSETS_REPO_URL,
                         help='a git repository url from which to download static assets.')
     parser.add_argument('--force-update-static-assets', default=False, action="store_true",
@@ -294,6 +305,8 @@ if __name__ == '__main__':
         pass
     redirects = {r[0]: r[1] for r in raw_redirects}
     httpd.redirects = redirects
+
+    httpd.law_docs_path = args.law_docs_path
 
     sa = httpd.socket.getsockname()
     url = 'http://{}:{}'.format(sa[0], sa[1])
